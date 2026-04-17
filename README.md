@@ -5,6 +5,23 @@ A graph-based campus navigation application that computes and visualizes the sho
 This project was developed as part of the **CSE 213 (Data Structures & Algorithms)** course.
 
 ---
+## 🌐 Live Demo
+
+You can access the deployed application here:
+
+👉 https://diu-campus-navigation.streamlit.app/
+
+---
+
+## 🚀 Try It Online
+
+* Select a start location
+* Choose a destination
+* Click **Find Shortest Path**
+* Explore graph, animation, and distance table
+
+No installation required — runs directly in your browser.
+
 
 ## 📌 Project Overview
 
