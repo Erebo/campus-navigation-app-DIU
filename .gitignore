@@ -1,0 +1,60 @@
+.env
+# Python cache
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+
+venv/
+env/
+.venv/
+
+# Environment variables
+
+.env
+.env.*
+
+# Build and packaging
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Jupyter Notebook
+
+.ipynb_checkpoints/
+
+# VS Code
+
+.vscode/
+
+# Logs
+
+*.log
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# Streamlit cache
+
+.streamlit/
+
+# Temporary files
+
+*.tmp
+*.bak
+*.swp
+
+# Generated files
+
+uploads/
+outputs/
+
+# Python version
+
+.python-version
