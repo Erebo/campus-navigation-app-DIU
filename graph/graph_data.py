@@ -8,12 +8,12 @@ NODES = [
     "Admission Office", "Bike Garage", "Boat Lake", "Bonomaya", "Bonomaya 2",
     "Central Jame Mosque", "Department of Civil Engineering",
     "Department of EEE", "DIU Garden", "DIU Health and Fitness Center",
-    "DIU Sports Dormitory", "DIU Transport Hub", "DIU Zoo", "Food Court",
+    "DIU Sports Dorm", "DIU Transport Hub", "DIU Zoo", "Food Court",
     "Golf Yard", "Green Garden", "Inspiration Building", "Knowledge Tower",
     "LAB Academic Building", "Main Gate 1", "Main Gate 2", "Main Gate 3",
     "Main Gate 4", "Main Gate 5", "Main Gate 6", "Main Gate 7", "Main Gate 8",
     "Main Gate 9", "Nursery", "RASG 1", "RASG 2", "Shadhinota Shommelon Kendro",
-    "Shaheed Minar", "Swimming Pool", "Volleyball Court", "YKSG 1", "YKSG 2", "DIU Logo",
+    "Shaheed Minar", "Kathal Tola", "Volleyball Court", "YKSG 1", "YKSG 2", "DIU Logo",
 ]
 
 # ── EDGES  (node1, node2, weight, direction_1_to_2, direction_2_to_1) ─────────
@@ -28,7 +28,7 @@ EDGES = [
     
     
   
-    ("Knowledge Tower", "Swimming Pool", 1, "South", "North"),
+    ("Knowledge Tower", "Kathal Tola", 1, "South", "North"),
     ("Knowledge Tower", "Bike Garage", 1, "North", "South"),
     ("Bike Garage", "Shadhinota Shommelon Kendro", 1, "North-East", "South-West"),
     ("Bike Garage", "RASG 2", 1, "North", "South"),
@@ -45,7 +45,7 @@ EDGES = [
     ("Food Court", "Bonomaya", 1, "East", "West"),
     ("Bonomaya", "DIU Garden", 1, "North", "South"),
     ("DIU Health and Fitness Center", "Food Court", 1, "South", "North"),
-    ("DIU Sports Dormitory", "Shadhinota Shommelon Kendro", 1, "South", "North"),
+    ("DIU Sports Dorm", "Shadhinota Shommelon Kendro", 1, "South", "North"),
     ("DIU Zoo", "RASG 1", 1, "East", "West"),
     ("DIU Health and Fitness Center", "Boat Lake", 1, "North", "South"),
     ("DIU Health and Fitness Center", "RASG 1", 1, "East", "West"),
@@ -56,7 +56,7 @@ EDGES = [
     ("Main Gate 7", "Department of EEE", 1, "North-West", "South-East"),
     ("Department of EEE", "Department of Civil Engineering", 1, "North", "South"),
     ("Golf Yard", "Shaheed Minar", 1, "East", "West"),
-    ("Golf Yard", "Swimming Pool", 1, "North", "South"),
+    ("Golf Yard", "Kathal Tola", 1, "North", "South"),
     ("Main Gate 1", "Admission Office", 1, "North", "South"),
     ("Main Gate 2", "Admission Office", 1, "North", "South"),
     ("Main Gate 3", "Green Garden", 1, "North", "South"),
@@ -85,7 +85,7 @@ NODE_POSITIONS = {
     "Boat Lake":                        (5.0, 10.5),
 
     # ── Upper Middle Section ──
-    "DIU Sports Dormitory":             (2.5,  9.5),
+    "DIU Sports Dorm":                  (2.5,  11.0),
     "Main Gate 6":                      (3.5,  9.5),
     "DIU Health and Fitness Center":    (4.5,  9.0),
     "RASG 1":                           (6.5,  9.5),
@@ -116,10 +116,10 @@ NODE_POSITIONS = {
     "YKSG 1":                           (10.0, 4.0),
 
     # ── Bottom Section ──
-    "Swimming Pool":                    (1.5,  3.5),
+    "Kathal Tola":                    (1.5,  3.5),
     "Golf Yard":                        (1.5,  2.0),
     "Shaheed Minar":                    (3.0,  1.5),
-    "Admission Office":                 (4.0,  1.5),
+    "Admission Office":                 (4.0,  1.0),
     "Volleyball Court":                 (5.5,  1.5),
     "Green Garden":                     (6.5,  1.5),
     "Central Jame Mosque":              (6.5,  3.5),

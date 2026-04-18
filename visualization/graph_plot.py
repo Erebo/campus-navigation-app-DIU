@@ -4,7 +4,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 import networkx as nx
 import matplotlib
-matplotlib.use("Agg")          # Non-interactive backend — required for Streamlit
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.patheffects as pe
@@ -14,24 +14,21 @@ from graph.graph_data import NODE_POSITIONS
 
 # ── Colour palette ────────────────────────────────────────────────────────────
 BG_COLOR          = "#0F0F1E"
-NODE_DEFAULT      = "#4FC3F7"   # sky-blue  — regular node
-NODE_PATH         = "#00E676"   # green     — node on shortest path
-NODE_CURRENT      = "#FF6D00"   # orange    — node being animated right now
-NODE_START        = "#FFD600"   # yellow    — start node
-NODE_END          = "#FF1744"   # red       — end / destination node
-EDGE_DEFAULT      = "#3A3A5C"   # dim indigo
-EDGE_PATH         = "#FFD700"   # gold      — path edge highlight
+NODE_DEFAULT      = "#4FC3F7"
+NODE_PATH         = "#00E676"
+NODE_CURRENT      = "#FF6D00"
+NODE_START        = "#FFD600"
+NODE_END          = "#FF1744"
+EDGE_DEFAULT      = "#3A3A5C"
+EDGE_PATH         = "#FFD700"
 LABEL_COLOR       = "#FFFFFF"
 WEIGHT_COLOR      = "#90CAF9"
 
 
 def build_nx_graph(edges):
-    """Create an undirected weighted NetworkX graph from an edge list."""
     G = nx.Graph()
-    # Updated to unpack all 5 elements from our new graph_data.py
     for u, v, w, dir_go, dir_return in edges:
-        # We store a combined string label to display on the map
-        edge_label = f"{w} ({dir_go[0]}/{dir_return[0]})" 
+        edge_label = f"{w}"   # cleaner (removed directions clutter)
         G.add_edge(u, v, weight=w, label=edge_label)
     return G
 
@@ -41,50 +38,30 @@ def draw_campus_graph(
     path=None,
     highlight_nodes=None,
     title="DIU Campus Navigation",
-    figsize=(20, 13),
+    figsize=(14, 9),
     current_step_node=None,
     start_node=None,
     end_node=None,
 ):
-    """
-    Draw the full campus graph, optionally highlighting a shortest path.
 
-    Parameters
-    ----------
-    edges             : list[(u, v, weight, dir, dir)]
-    path              : list[str]  – ordered path nodes (optional)
-    highlight_nodes   : set[str]   – nodes revealed so far (for animation)
-    title             : str
-    figsize           : tuple
-    current_step_node : str        – node highlighted as 'current' in animation
-    start_node        : str        – source node (yellow)
-    end_node          : str        – destination node (red)
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-    """
-    G   = build_nx_graph(edges)
+    G = build_nx_graph(edges)
     pos = {n: NODE_POSITIONS[n] for n in G.nodes() if n in NODE_POSITIONS}
 
-    # ── Build path-edge set ───────────────────────────────────────────────────
+# 🔥 ADD THIS RIGHT BELOW
+    scale = 2.2
+    pos = {k: (x * scale, y * scale) for k, (x, y) in pos.items()}
+
+    # ── Path edges ────────────────────────────────────────────────────────────
     path_edge_set = set()
     if path and len(path) > 1:
         for i in range(len(path) - 1):
             path_edge_set.add((path[i], path[i + 1]))
             path_edge_set.add((path[i + 1], path[i]))
 
-    # ── Partition edges ───────────────────────────────────────────────────────
-    normal_edges = [
-        (u, v) for u, v in G.edges()
-        if (u, v) not in path_edge_set
-    ]
-    highlighted_edges = [
-        (u, v) for u, v in G.edges()
-        if (u, v) in path_edge_set
-    ]
+    normal_edges = [(u, v) for u, v in G.edges() if (u, v) not in path_edge_set]
+    highlighted_edges = [(u, v) for u, v in G.edges() if (u, v) in path_edge_set]
 
-    # ── Assign node colours ───────────────────────────────────────────────────
+    # ── Node styling ──────────────────────────────────────────────────────────
     path_set = set(path) if path else set()
     revealed = highlight_nodes if highlight_nodes else set()
 
@@ -103,10 +80,10 @@ def draw_campus_graph(
 
     node_colors = [node_color(n) for n in G.nodes()]
     node_sizes  = [
-        700 if n == current_step_node else
-        550 if n in (start_node, end_node) else
-        420 if n in path_set else
-        260
+        1100 if n == current_step_node else
+        900 if n in (start_node, end_node) else
+        700 if n in path_set else
+        500
         for n in G.nodes()
     ]
 
@@ -116,54 +93,58 @@ def draw_campus_graph(
     ax.set_facecolor(BG_COLOR)
     ax.axis("off")
 
-    # ── Draw normal edges ─────────────────────────────────────────────────────
+    # ── Edges ─────────────────────────────────────────────────────────────────
     nx.draw_networkx_edges(
         G, pos,
         edgelist=normal_edges,
-        edge_color=EDGE_DEFAULT,
-        width=1.4,
-        alpha=0.65,
+        edge_color="#6A6AFF",
+        width=3.0,
+        alpha=0.9,
         ax=ax,
     )
 
-    # ── Draw path edges (gold, thick) ─────────────────────────────────────────
     if highlighted_edges:
         nx.draw_networkx_edges(
             G, pos,
             edgelist=highlighted_edges,
-            edge_color=EDGE_PATH,
-            width=4.5,
+            edge_color="#00E676",   # neon green
+            width=6.0,              # thicker
             alpha=1.0,
             ax=ax,
-            style="solid",
-        )
+)
 
-    # ── Draw nodes ────────────────────────────────────────────────────────────
+    # ── Nodes ─────────────────────────────────────────────────────────────────
     nx.draw_networkx_nodes(
         G, pos,
         node_color=node_colors,
         node_size=node_sizes,
         edgecolors="#FFFFFF",
-        linewidths=0.6,
+        linewidths=0.8,
         ax=ax,
     )
 
-    # ── Draw node labels ──────────────────────────────────────────────────────
-    nx.draw_networkx_labels(
+    # ── Labels (FIXED + OUTLINE) ──────────────────────────────────────────────
+    labels = nx.draw_networkx_labels(
         G, pos,
-        font_size=5.5,
+        font_size=10,
         font_color=LABEL_COLOR,
         font_weight="bold",
-        ax=ax,
+        ax=ax
     )
 
-    # ── Draw edge weight labels ───────────────────────────────────────────────
-    # Changed from 'weight' to 'label' so it shows the directions!
-    edge_labels = nx.get_edge_attributes(G, "label") 
+    if labels:
+        for text in labels.values():
+            text.set_path_effects([
+                pe.Stroke(linewidth=2.5, foreground='black'),
+                pe.Normal()
+            ])
+
+    # ── Edge labels (optional – can disable if cluttered) ─────────────────────
+    edge_labels = nx.get_edge_attributes(G, "label")
     nx.draw_networkx_edge_labels(
         G, pos,
         edge_labels=edge_labels,
-        font_size=5,
+        font_size=6,
         font_color=WEIGHT_COLOR,
         bbox=dict(boxstyle="round,pad=0.1", fc=BG_COLOR, alpha=0.5, ec="none"),
         ax=ax,
@@ -175,10 +156,11 @@ def draw_campus_graph(
         mpatches.Patch(color=NODE_PATH,     label="On Shortest Path"),
         mpatches.Patch(color=NODE_START,    label="Start"),
         mpatches.Patch(color=NODE_END,      label="Destination"),
-        mpatches.Patch(color=NODE_CURRENT,  label="Currently Visiting"),
+        mpatches.Patch(color=NODE_CURRENT,  label="Current Node"),
         mpatches.Patch(color=EDGE_PATH,     label="Path Edge"),
     ]
-    legend = ax.legend(
+
+    ax.legend(
         handles=legend_entries,
         loc="lower left",
         framealpha=0.35,
@@ -188,6 +170,8 @@ def draw_campus_graph(
         fontsize=8,
     )
 
+    # ── Title ─────────────────────────────────────────────────────────────────
     ax.set_title(title, color="white", fontsize=13, fontweight="bold", pad=14)
-    plt.tight_layout(pad=1.5)
+
+    plt.tight_layout(pad=1.2)
     return fig
