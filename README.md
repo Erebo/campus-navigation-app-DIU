@@ -187,7 +187,7 @@ Main Gate 2 → LAB Academic Building → Shaheed Minar → Central Jame Mosque
 
 ## 🎓 Academic Context
 
-📘 Course: **CSE 213 — Data Structures & Algorithms**
+📘 Course: **CSE 213 — Algorithms**
 
 Concepts covered:
 
@@ -208,11 +208,13 @@ Concepts covered:
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Authors :
 
 **Mahadi Rahman Jihad**
-
-CSE Student
+**Tartib Kaiser Munna**
+**Tasfia Mozumder Aupy**
+**Tahseen Alam**
+**Aminul Islam Rimon**
 
 ---
 
@@ -224,4 +226,4 @@ This project is licensed under the MIT License.
 
 ## ⭐ Acknowledgment
 
-This project demonstrates the real-world application of graph algorithms in navigation systems.
+This project demonstrates the practical application of graph algorithms in real-world navigation systems, using a model derived from the original map of Daffodil International University
