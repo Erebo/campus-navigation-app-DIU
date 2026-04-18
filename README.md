@@ -9,7 +9,7 @@ This project was developed as part of the **CSE 213 (Data Structures & Algorithm
 
 You can access the deployed application here:
 
-👉 https://diu-campus-navigation.streamlit.app/
+👉 https://diu-campus-navigator.streamlit.app/
 
 ---
 
@@ -211,6 +211,7 @@ Concepts covered:
 ## 👨‍💻 Author
 
 **Mahadi Rahman Jihad**
+
 CSE Student
 
 ---
