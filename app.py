@@ -28,12 +28,14 @@ st.set_page_config(
 # ═════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-/* ── Hide Streamlit Top Header & Footer ── */
-header[data-testid="stHeader"], 
-.stDeployButton, 
-footer {
+/* ── Hide Deploy button ── */
+button[kind="header"] {
     display: none !important;
-    visibility: hidden !important;
+}
+
+/* ── Hide 3-dot menu ── */
+button[data-testid="stToolbarMenuButton"] {
+    display: none !important;
 }
 
 /* ── Adjust Top Padding (since header is gone) ── */
@@ -61,6 +63,10 @@ hr { border-color: #2A2A4A; }
     margin-bottom: -1rem !important;
 }
 
+ /* ── Hide 3-dot menu (toolbar) ── */
+button[data-testid="stToolbarMenuButton"] {
+    display: none !important;
+}
 /* ── Path display box ── */
 .path-box {
     background   : #1A1A2E;
