@@ -229,7 +229,7 @@ with tab_graph:
             st.markdown(
                 f"<div class='metric-card'>"
                 f"<div class='metric-value'>{total_dist}</div>"
-                f"<div class='metric-label'>TOTAL DISTANCE (units)</div></div>",
+                f"<div class='metric-label'>TOTAL DISTANCE (meters)</div></div>",
                 unsafe_allow_html=True,
             )
         with c3:
@@ -301,7 +301,7 @@ with tab_anim:
         st.markdown(
             f"<p style='color:#90CAF9;'>"
             f"<b>Route:</b> {start} → {end} &nbsp;|&nbsp; "
-            f"<b>Distance:</b> {dist} units &nbsp;|&nbsp; "
+            f"<b>Distance:</b> {dist} meters &nbsp;|&nbsp; "
             f"<b>Steps:</b> {len(path)}</p>",
             unsafe_allow_html=True,
         )
@@ -339,7 +339,7 @@ with tab_table:
         for node, d in sorted(distances.items(), key=lambda x: x[1]):
             rows.append({
                 "Destination":      node,
-                "Distance (units)": d if d != math.inf else "∞",
+                "Distance (meters)": d if d != math.inf else "∞",
                 "On Shortest Path": "Yes" if node in path_set else "—",
                 "Reachable":        "Yes" if d != math.inf else "No",
             })
