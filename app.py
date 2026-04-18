@@ -344,20 +344,20 @@ with tab_table:
                 "Reachable":        "Yes" if d != math.inf else "No",
             })
 
-        # ✅ CREATE DF (inside else)
+       
         df = pd.DataFrame(rows)
 
-        # ✅ FUNCTION (inside else)
+        
         def highlight_yes(val):
             if val == "Yes":
                 return "background-color: #00E676; color: black; font-weight: bold;"
             return ""
 
-        # ✅ STYLE (inside else)
+        
         styled_df = df.style.map(
             highlight_yes,
             subset=["On Shortest Path"]
         )
 
-        # ✅ DISPLAY (inside else)
+        
         st.dataframe(styled_df, use_container_width=True, hide_index=True)
