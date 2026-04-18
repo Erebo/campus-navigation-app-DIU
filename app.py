@@ -176,10 +176,10 @@ with st.sidebar:
     st.markdown("<br><h2 style='margin-top: 0;'>Navigation Steps</h2>", unsafe_allow_html=True)
     
     if "directions" in st.session_state:
-        # Build the steps as a single HTML string
+        
         steps_html = "<div class='path-box' style='font-size: 13px; line-height: 1.6; padding: 12px; color: #E0E0FF;'>"
         for i, step in enumerate(st.session_state["directions"]):
-            # Clean out markdown bold stars so it renders smoothly in raw HTML
+            
             clean_step = step.replace("**", "")
             steps_html += f"<b style='color: #4FC3F7;'>{i+1}.</b> {clean_step}<br><br>"
             
@@ -344,20 +344,20 @@ with tab_table:
                 "Reachable":        "Yes" if d != math.inf else "No",
             })
 
-        # ✅ CREATE DF (inside else)
+       
         df = pd.DataFrame(rows)
 
-        # ✅ FUNCTION (inside else)
+        
         def highlight_yes(val):
             if val == "Yes":
                 return "background-color: #00E676; color: black; font-weight: bold;"
             return ""
 
-        # ✅ STYLE (inside else)
+        
         styled_df = df.style.map(
             highlight_yes,
             subset=["On Shortest Path"]
         )
 
-        # ✅ DISPLAY (inside else)
+        
         st.dataframe(styled_df, use_container_width=True, hide_index=True)
