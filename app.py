@@ -9,7 +9,7 @@ import streamlit as st
 
 from graph.graph_data         import NODES, EDGES, GRAPH
 from graph.dijkstra           import dijkstra
-from graph.path_utils         import reconstruct_path, format_path, path_total_distance
+from graph.path_utils         import reconstruct_path, format_path, path_total_distance, get_turn_by_turn_directions
 from visualization.graph_plot import draw_campus_graph
 from visualization.animation  import animate_path
 
@@ -19,7 +19,6 @@ from visualization.animation  import animate_path
 # ═════════════════════════════════════════════════════════════════════════════
 st.set_page_config(
     page_title="DIU Campus Navigation",
-    page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -29,6 +28,19 @@ st.set_page_config(
 # ═════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
+/* ── Hide Streamlit Top Header & Footer ── */
+header[data-testid="stHeader"], 
+.stDeployButton, 
+footer {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ── Adjust Top Padding (since header is gone) ── */
+.block-container {
+    padding-top: 2rem !important;
+}
+
 /* ── App background ── */
 .stApp { background-color: #0F0F1A; }
 
@@ -41,6 +53,12 @@ h1, h2, h3, h4, p, label,
 
 /* ── Divider ── */
 hr { border-color: #2A2A4A; }
+
+/* ── Sidebar Button Tight Spacing ── */
+[data-testid="stSidebar"] div.stButton {
+    margin-top: -0.5rem !important;
+    margin-bottom: -1rem !important;
+}
 
 /* ── Path display box ── */
 .path-box {
@@ -83,7 +101,7 @@ hr { border-color: #2A2A4A; }
 # ═════════════════════════════════════════════════════════════════════════════
 # HEADER
 # ═════════════════════════════════════════════════════════════════════════════
-st.markdown("# 🎓 DIU Campus Navigation System")
+st.markdown("# DIU Campus Navigation System")
 st.markdown(
     "<p style='color:#90CAF9; font-size:15px; margin-top:-10px;'>"
     "Find the shortest route between any two campus locations using "
@@ -94,10 +112,10 @@ st.divider()
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# SIDEBAR
+# SIDEBAR (Top Half)
 # ═════════════════════════════════════════════════════════════════════════════
 with st.sidebar:
-    st.markdown("## 🗺️ Route Planner")
+    st.markdown("## Route Planner")
     st.markdown(
         "<p style='font-size:13px; color:#90CAF9;'>"
         "Choose your start and destination, then press <b>Find Shortest Path</b>."
@@ -105,40 +123,14 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    start_node = st.selectbox("📍 Start Location",  NODES, index=0)
-    end_node   = st.selectbox("🏁 Destination",     NODES, index=10)
-
-    st.divider()
-
-    anim_speed = st.slider(
-        "⏱️ Animation Speed (sec / step)",
-        min_value=0.2,
-        max_value=2.5,
-        value=0.8,
-        step=0.1,
-        help="Lower = faster animation",
-    )
+    start_node = st.selectbox("Start Location",  NODES, index=0)
+    end_node   = st.selectbox("Destination",     NODES, index=10)
 
     find_btn = st.button(
-        "🔍  Find Shortest Path",
+        "Find Shortest Path",
         use_container_width=True,
         type="primary",
     )
-
-    st.divider()
-
-    # About box
-    st.markdown("""
-    <div class="info-banner">
-    <b>📘 About Dijkstra's Algorithm</b><br><br>
-    Dijkstra's algorithm computes the <i>shortest path</i> from one node to
-    all others in a weighted graph.<br><br>
-    It uses a <b>min-heap (priority queue)</b> to always process the
-    nearest unvisited node, guaranteeing the globally optimal result for
-    non-negative edge weights.<br><br>
-    <b>Complexity:</b> O((V + E) log V)
-    </div>
-    """, unsafe_allow_html=True)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -146,19 +138,20 @@ with st.sidebar:
 # ═════════════════════════════════════════════════════════════════════════════
 if find_btn:
     if start_node == end_node:
-        st.warning("⚠️ Start and destination are the same. Please choose different locations.")
+        st.warning("Start and destination are the same. Please choose different locations.")
     else:
-        with st.spinner("⚙️ Running Dijkstra's algorithm…"):
+        with st.spinner("Running Dijkstra's algorithm…"):
             distances, previous = dijkstra(GRAPH, start_node)
             path = reconstruct_path(previous, start_node, end_node)
 
         if not path:
             st.error(
-                f"❌ No path found between **{start_node}** and **{end_node}**. "
+                f"No path found between **{start_node}** and **{end_node}**. "
                 "They may not be connected in the current graph."
             )
         else:
             total_dist = distances[end_node]
+            directions = get_turn_by_turn_directions(path, GRAPH)
 
             # Persist results across tab switches
             st.session_state["path"]       = path
@@ -166,16 +159,41 @@ if find_btn:
             st.session_state["end"]        = end_node
             st.session_state["dist"]       = total_dist
             st.session_state["distances"]  = distances
-            st.session_state["anim_speed"] = anim_speed
+            st.session_state["directions"] = directions
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# SIDEBAR (Bottom Half) — Turn-by-Turn Navigation
+# ═════════════════════════════════════════════════════════════════════════════
+with st.sidebar:
+    st.markdown("<br><h2 style='margin-top: 0;'>Navigation Steps</h2>", unsafe_allow_html=True)
+    
+    if "directions" in st.session_state:
+        # Build the steps as a single HTML string
+        steps_html = "<div class='path-box' style='font-size: 13px; line-height: 1.6; padding: 12px; color: #E0E0FF;'>"
+        for i, step in enumerate(st.session_state["directions"]):
+            # Clean out markdown bold stars so it renders smoothly in raw HTML
+            clean_step = step.replace("**", "")
+            steps_html += f"<b style='color: #4FC3F7;'>{i+1}.</b> {clean_step}<br><br>"
+            
+        steps_html += f"<b style='color: #00E676;'>{len(st.session_state['directions'])+1}.</b> You have arrived!</div>"
+        
+        st.markdown(steps_html, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div class="info-banner">
+        Select your locations and click <b>Find Shortest Path</b> to see turn-by-turn navigation steps here.
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # TABS
 # ═════════════════════════════════════════════════════════════════════════════
 tab_graph, tab_anim, tab_table = st.tabs([
-    "📊  Graph & Path",
-    "🎬  Step Animation",
-    "📋  All Distances",
+    "Graph & Path",
+    "Step Animation",
+    "All Distances",
 ])
 
 
@@ -197,28 +215,28 @@ with tab_graph:
             st.markdown(
                 f"<div class='metric-card'>"
                 f"<div class='metric-value'>{len(path) - 1}</div>"
-                f"<div class='metric-label'>🔗 HOPS</div></div>",
+                f"<div class='metric-label'>HOPS</div></div>",
                 unsafe_allow_html=True,
             )
         with c2:
             st.markdown(
                 f"<div class='metric-card'>"
                 f"<div class='metric-value'>{total_dist}</div>"
-                f"<div class='metric-label'>📏 TOTAL DISTANCE (units)</div></div>",
+                f"<div class='metric-label'>TOTAL DISTANCE (units)</div></div>",
                 unsafe_allow_html=True,
             )
         with c3:
             st.markdown(
                 f"<div class='metric-card'>"
                 f"<div class='metric-value'>{len(path)}</div>"
-                f"<div class='metric-label'>📍 LOCATIONS VISITED</div></div>",
+                f"<div class='metric-label'>LOCATIONS VISITED</div></div>",
                 unsafe_allow_html=True,
             )
 
         st.markdown("<br>", unsafe_allow_html=True)
 
         # ── Path text ─────────────────────────────────────────────────────────
-        st.markdown("### 🗺️ Shortest Path")
+        st.markdown("### Shortest Path")
         st.markdown(
             f"<div class='path-box'>{format_path(path)}</div>",
             unsafe_allow_html=True,
@@ -226,7 +244,7 @@ with tab_graph:
         st.markdown("<br>", unsafe_allow_html=True)
 
         # ── Static highlighted graph ──────────────────────────────────────────
-        st.markdown("### 🖼️ Campus Map — Path Highlighted")
+        st.markdown("### Campus Map — Path Highlighted")
         fig = draw_campus_graph(
             edges=EDGES,
             path=path,
@@ -240,9 +258,9 @@ with tab_graph:
 
     else:
         # Default: show the full map without highlighting
-        st.markdown("### 🖼️ Full Campus Map")
+        st.markdown("### Full Campus Map")
         st.markdown(
-            "<div class='info-banner'>👈  Select your locations in the sidebar "
+            "<div class='info-banner'>Select your locations in the sidebar "
             "and click <b>Find Shortest Path</b> to compute a route.</div>",
             unsafe_allow_html=True,
         )
@@ -259,11 +277,11 @@ with tab_graph:
 # TAB 2 — Step-by-Step Animation
 # ─────────────────────────────────────────────────────────────────────────────
 with tab_anim:
-    st.markdown("### 🎬 Step-by-Step Path Animation")
+    st.markdown("### Step-by-Step Path Animation")
 
     if "path" not in st.session_state:
         st.markdown(
-            "<div class='info-banner'>👈  Find a path first (Graph & Path tab) "
+            "<div class='info-banner'>Find a path first (Graph & Path tab) "
             "to unlock the animation.</div>",
             unsafe_allow_html=True,
         )
@@ -272,7 +290,6 @@ with tab_anim:
         start = st.session_state["start"]
         end   = st.session_state["end"]
         dist  = st.session_state["dist"]
-        speed = st.session_state.get("anim_speed", 0.8)
 
         st.markdown(
             f"<p style='color:#90CAF9;'>"
@@ -282,21 +299,21 @@ with tab_anim:
             unsafe_allow_html=True,
         )
 
-        play_btn = st.button("▶️  Play Animation", use_container_width=True, type="primary")
+        play_btn = st.button("Play Animation", use_container_width=True, type="primary")
 
         if play_btn:
-            animate_path(path, delay=speed, start_node=start, end_node=end)
+            animate_path(path, delay=0.8, start_node=start, end_node=end)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # TAB 3 — Distance Table
 # ─────────────────────────────────────────────────────────────────────────────
 with tab_table:
-    st.markdown("### 📋 All Distances from Start Node")
+    st.markdown("### All Distances from Start Node")
 
     if "distances" not in st.session_state:
         st.markdown(
-            "<div class='info-banner'>👈  Find a path first to populate "
+            "<div class='info-banner'>Find a path first to populate "
             "the distance table.</div>",
             unsafe_allow_html=True,
         )
@@ -316,8 +333,8 @@ with tab_table:
             rows.append({
                 "Destination":     node,
                 "Distance (units)": d if d != math.inf else "∞",
-                "On Shortest Path": "🟢 Yes" if node in path_set else "—",
-                "Reachable":        "✅" if d != math.inf else "❌",
+                "On Shortest Path": "Yes" if node in path_set else "—",
+                "Reachable":        "Yes" if d != math.inf else "No",
             })
 
         df = pd.DataFrame(rows)

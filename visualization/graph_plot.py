@@ -28,8 +28,11 @@ WEIGHT_COLOR      = "#90CAF9"
 def build_nx_graph(edges):
     """Create an undirected weighted NetworkX graph from an edge list."""
     G = nx.Graph()
-    for u, v, w in edges:
-        G.add_edge(u, v, weight=w)
+    # Updated to unpack all 5 elements from our new graph_data.py
+    for u, v, w, dir_go, dir_return in edges:
+        # We store a combined string label to display on the map
+        edge_label = f"{w} ({dir_go[0]}/{dir_return[0]})" 
+        G.add_edge(u, v, weight=w, label=edge_label)
     return G
 
 
@@ -48,7 +51,7 @@ def draw_campus_graph(
 
     Parameters
     ----------
-    edges             : list[(u, v, weight)]
+    edges             : list[(u, v, weight, dir, dir)]
     path              : list[str]  – ordered path nodes (optional)
     highlight_nodes   : set[str]   – nodes revealed so far (for animation)
     title             : str
@@ -155,7 +158,8 @@ def draw_campus_graph(
     )
 
     # ── Draw edge weight labels ───────────────────────────────────────────────
-    edge_labels = nx.get_edge_attributes(G, "weight")
+    # Changed from 'weight' to 'label' so it shows the directions!
+    edge_labels = nx.get_edge_attributes(G, "label") 
     nx.draw_networkx_edge_labels(
         G, pos,
         edge_labels=edge_labels,

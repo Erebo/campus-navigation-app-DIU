@@ -13,7 +13,7 @@ def dijkstra(graph, start):
     Parameters
     ----------
     graph : dict
-        Adjacency dict  {node: {neighbor: weight, ...}, ...}
+        Adjacency dict  {node: {neighbor: {'weight': int, 'direction': str}, ...}, ...}
     start : str
         Source node.
 
@@ -41,7 +41,9 @@ def dijkstra(graph, start):
         if current_dist > distances[current_node]:
             continue
 
-        for neighbor, weight in graph[current_node].items():
+        # 👇 THIS IS THE CRUCIAL CHANGE 👇
+        for neighbor, edge_data in graph[current_node].items():
+            weight = edge_data['weight'] 
             tentative = current_dist + weight
 
             if tentative < distances[neighbor]:
