@@ -40,6 +40,7 @@ footer {
 .block-container {
     padding-top: 2rem !important;
 }
+            
 
 /* ── App background ── */
 .stApp { background-color: #0F0F1A; }
@@ -101,7 +102,7 @@ hr { border-color: #2A2A4A; }
 # ═════════════════════════════════════════════════════════════════════════════
 # HEADER
 # ═════════════════════════════════════════════════════════════════════════════
-st.markdown("# DIU Campus Navigation System")
+st.markdown("# DIU Campus Navigator ")
 st.markdown(
     "<p style='color:#90CAF9; font-size:15px; margin-top:-10px;'>"
     "Find the shortest route between any two campus locations using "
@@ -331,11 +332,26 @@ with tab_table:
         rows = []
         for node, d in sorted(distances.items(), key=lambda x: x[1]):
             rows.append({
-                "Destination":     node,
+                "Destination":      node,
                 "Distance (units)": d if d != math.inf else "∞",
                 "On Shortest Path": "Yes" if node in path_set else "—",
                 "Reachable":        "Yes" if d != math.inf else "No",
             })
 
+        # ✅ CREATE DF (inside else)
         df = pd.DataFrame(rows)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        # ✅ FUNCTION (inside else)
+        def highlight_yes(val):
+            if val == "Yes":
+                return "background-color: #00E676; color: black; font-weight: bold;"
+            return ""
+
+        # ✅ STYLE (inside else)
+        styled_df = df.style.map(
+            highlight_yes,
+            subset=["On Shortest Path"]
+        )
+
+        # ✅ DISPLAY (inside else)
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
